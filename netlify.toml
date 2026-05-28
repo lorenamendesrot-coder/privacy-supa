@@ -1,0 +1,10 @@
+[build]
+  publish = "."
+
+# Sem Netlify Functions — tudo roda no Supabase
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
