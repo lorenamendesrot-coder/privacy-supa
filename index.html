@@ -1781,42 +1781,88 @@ main.wrap{
   color: rgb(108,117,125);
 }
 /* ===========================
-   MODAL PRIVACY — PIXEL PERFECT
+   MODAL PRIVACY — HEADER FIX
 =========================== */
 
-/* header não corta avatar */
-.pm-header{ overflow: visible !important; }
+/* Header engloba banner + área do avatar/nome abaixo do banner */
+.pm-header{
+  position: relative !important;
+  height: 136px !important;       /* 80px banner + 56px para avatar/nome que vazam */
+  overflow: hidden !important;    /* corta tudo dentro */
+  background: #f0ebe5 !important; /* fundo bege para a área abaixo do banner */
+  flex-shrink: 0 !important;
+}
 
-/* garante layers */
-.pm-banner{ position:relative; z-index:1; }
-.pm-avatar{ position:absolute; z-index:3; }
-.pm-close{ position:absolute; z-index:4; }
+/* Banner ocupa só os primeiros 80px do topo */
+.pm-banner{
+  position: absolute !important;
+  top: 0 !important; left: 0 !important; right: 0 !important;
+  height: 80px !important;
+  width: 100% !important;
+  object-fit: cover !important;
+  z-index: 1 !important;
+  display: block !important;
+}
 
-/* pm-id: posicionado ao lado do avatar, não vaza */
+/* Botão fechar */
+.pm-close{
+  position: absolute !important;
+  top: 10px !important; right: 10px !important;
+  z-index: 5 !important;
+}
+
+/* Avatar: centrado na borda banner/fundo (top=80-36=44px) */
+.pm-avatar{
+  position: absolute !important;
+  width: 72px !important;
+  height: 72px !important;
+  left: 12px !important;
+  top: 44px !important;           /* centro do avatar na linha do banner */
+  border-radius: 50% !important;
+  border: 2px solid #fff !important;
+  object-fit: cover !important;
+  z-index: 3 !important;
+  background: #ccc !important;
+}
+
+/* Nome + handle: ao lado do avatar, na área bege */
 .pm-id{
   position: absolute !important;
-  left: calc(9px + 96px + 10px) !important;
-  right: 44px !important;
-  bottom: -38px !important;
+  left: calc(12px + 72px + 10px) !important;   /* avatar left+width+gap */
+  right: 12px !important;
+  top: 86px !important;           /* abaixo do banner */
+  bottom: 4px !important;
   z-index: 3 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
   overflow: hidden !important;
 }
 
 .pm-name{
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
+  color: rgb(30,41,59) !important;
+  margin: 0 !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-  font-weight: 600 !important;
 }
 
 .pm-handle{
+  font-size: 12px !important;
+  line-height: 16px !important;
+  font-weight: 400 !important;
+  color: rgb(108,117,125) !important;
+  margin-top: 2px !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
 
-/* body: espaço para o avatar que vaza (96px - 80px banner = 16px vaza + 38px do pm-id + padding) */
-.pm-body{ padding: 76px 16px 18px !important; overflow:auto; -webkit-overflow-scrolling:touch; }
+/* Body: padding normal, header já tem sua própria altura */
+.pm-body{ padding: 16px 16px 18px !important; overflow:auto; -webkit-overflow-scrolling:touch; }
 
 /* ✅ TÍTULO: Benefícios exclusivos
    - 31px da borda esquerda do MODAL (16 + 15)
