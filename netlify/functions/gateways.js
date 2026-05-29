@@ -48,6 +48,7 @@ const GATEWAYS = {
   // Autenticação: x-api-key no header (sem OAuth)
   // Webhook: header X-Nexuspag-Signature (HMAC-SHA256)
   // Evento confirmado: payment.confirmed
+  // amount: em centavos (inteiro) — ex: R$ 29,90 → 2990
   nexuspag: {
     label: "NexusPag",
     requiredFields: ["nexuspag_api_key"],
@@ -58,9 +59,11 @@ const GATEWAYS = {
 
     async cashin(cfg, amount, webhookUrl) {
       const base = cfg.nexuspag_sandbox
-        ? "https://sandbox.api.nexuspag.com"
-        : "https://api.nexuspag.com";
-      const payload = { amount: parseFloat(amount), description: "Acesso ao conteúdo" };
+        ? "https://sandbox.api.nexuspag.com.br"
+        : "https://api.nexuspag.com.br";
+      // NexusPag espera amount em centavos (inteiro)
+      const amountCents = Math.round(parseFloat(amount) * 100);
+      const payload = { amount: amountCents, description: "Acesso ao conteúdo" };
       if (webhookUrl) payload.webhook_url = webhookUrl;
       const res = await fetch(base + "/v1/pix/cashin", {
         method: "POST",
@@ -68,10 +71,13 @@ const GATEWAYS = {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || data.error || "Erro ao gerar cobrança NexusPag");
+      if (!res.ok) {
+        const msg = data.message || data.error || (data.errors && JSON.stringify(data.errors)) || "Erro ao gerar cobrança NexusPag";
+        throw new Error(msg + " (status " + res.status + ")");
+      }
       return {
-        pix_code: data.pix_code || data.qr_code || data.payload,
-        identifier: data.id || data.transaction_id,
+        pix_code: data.pix_code || data.qr_code || data.payload || data.brcode,
+        identifier: data.id || data.transaction_id || data.txid,
       };
     },
   },
