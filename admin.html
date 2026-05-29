@@ -101,6 +101,8 @@
   .plan-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:4px}
   .plan-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px}
   .plan-card-title{font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+  .price-sync-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:end}
+  .price-sync-arrow{font-size:18px;color:var(--accent);padding-bottom:10px;text-align:center;opacity:.6;user-select:none}
 
   /* ── PREVIEW DEVICE ── */
   .device-frame{background:#1a1a1a;border:2px solid var(--border);border-radius:20px;overflow:hidden;max-width:390px;margin:0 auto;box-shadow:0 24px 60px rgba(0,0,0,.5)}
@@ -279,15 +281,18 @@
             <div class="plan-card-title">🗓️ 1 Mês</div>
             <div class="field">
               <label>Preço normal (R$)</label>
-              <input id="pPlan1mFull" type="text" placeholder="55,90" oninput="calcPromo('1m')">
+              <input id="pPlan1mFull" type="text" placeholder="55,90" oninput="syncPlan('1m','full')">
             </div>
-            <div class="field">
-              <label>Desconto (%)</label>
-              <input id="pPlan1mOff" type="number" min="0" max="99" placeholder="50" oninput="calcPromo('1m')">
-            </div>
-            <div class="field" style="margin-bottom:0">
-              <label>Preço promocional (R$) — calculado</label>
-              <input id="pPlan1m" type="text" placeholder="—" readonly style="opacity:.65;cursor:default">
+            <div class="price-sync-row">
+              <div class="field">
+                <label>Desconto (%)</label>
+                <input id="pPlan1mOff" type="number" min="0" max="99" step="1" placeholder="50" oninput="syncPlan('1m','off')">
+              </div>
+              <div class="price-sync-arrow">⇄</div>
+              <div class="field">
+                <label>Preço promocional (R$)</label>
+                <input id="pPlan1m" type="text" placeholder="27,95" oninput="syncPlan('1m','promo')">
+              </div>
             </div>
             <div id="disc1m" style="margin-top:8px;font-size:12px;font-weight:600;color:var(--success);min-height:18px"></div>
           </div>
@@ -296,15 +301,18 @@
             <div class="plan-card-title">📅 3 Meses</div>
             <div class="field">
               <label>Preço normal (R$)</label>
-              <input id="pPlan3mFull" type="text" placeholder="75,90" oninput="calcPromo('3m')">
+              <input id="pPlan3mFull" type="text" placeholder="75,90" oninput="syncPlan('3m','full')">
             </div>
-            <div class="field">
-              <label>Desconto (%)</label>
-              <input id="pPlan3mOff" type="number" min="0" max="99" placeholder="50" oninput="calcPromo('3m')">
-            </div>
-            <div class="field" style="margin-bottom:0">
-              <label>Preço promocional (R$) — calculado</label>
-              <input id="pPlan3m" type="text" placeholder="—" readonly style="opacity:.65;cursor:default">
+            <div class="price-sync-row">
+              <div class="field">
+                <label>Desconto (%)</label>
+                <input id="pPlan3mOff" type="number" min="0" max="99" step="1" placeholder="50" oninput="syncPlan('3m','off')">
+              </div>
+              <div class="price-sync-arrow">⇄</div>
+              <div class="field">
+                <label>Preço promocional (R$)</label>
+                <input id="pPlan3m" type="text" placeholder="37,95" oninput="syncPlan('3m','promo')">
+              </div>
             </div>
             <div id="disc3m" style="margin-top:8px;font-size:12px;font-weight:600;color:var(--success);min-height:18px"></div>
           </div>
@@ -313,15 +321,18 @@
             <div class="plan-card-title">📆 12 Meses</div>
             <div class="field">
               <label>Preço normal (R$)</label>
-              <input id="pPlan12mFull" type="text" placeholder="439,80" oninput="calcPromo('12m')">
+              <input id="pPlan12mFull" type="text" placeholder="439,80" oninput="syncPlan('12m','full')">
             </div>
-            <div class="field">
-              <label>Desconto (%)</label>
-              <input id="pPlan12mOff" type="number" min="0" max="99" placeholder="80" oninput="calcPromo('12m')">
-            </div>
-            <div class="field" style="margin-bottom:0">
-              <label>Preço promocional (R$) — calculado</label>
-              <input id="pPlan12m" type="text" placeholder="—" readonly style="opacity:.65;cursor:default">
+            <div class="price-sync-row">
+              <div class="field">
+                <label>Desconto (%)</label>
+                <input id="pPlan12mOff" type="number" min="0" max="99" step="1" placeholder="80" oninput="syncPlan('12m','off')">
+              </div>
+              <div class="price-sync-arrow">⇄</div>
+              <div class="field">
+                <label>Preço promocional (R$)</label>
+                <input id="pPlan12m" type="text" placeholder="87,96" oninput="syncPlan('12m','promo')">
+              </div>
             </div>
             <div id="disc12m" style="margin-top:8px;font-size:12px;font-weight:600;color:var(--success);min-height:18px"></div>
           </div>
@@ -743,8 +754,8 @@ function applyProfile(cfg) {
   setVal('pPlan3mOff',       cfg.plan_3m_off       || '');
   setVal('pPlan12mFull',     cfg.plan_12m_full     || '');
   setVal('pPlan12mOff',      cfg.plan_12m_off      || '');
-  // recalcula preços promocionais a partir do full + %
-  setTimeout(() => { calcPromo('1m'); calcPromo('3m'); calcPromo('12m'); }, 50);
+  // recalcula preços ao carregar (usa % salvo para preencher promo)
+  setTimeout(() => { syncPlan('1m','off'); syncPlan('3m','off'); syncPlan('12m','off'); }, 50);
   setVal('pBenefit1',        cfg.benefit_1         || '');
   setVal('pBenefit2',        cfg.benefit_2         || '');
   setVal('pBenefit3',        cfg.benefit_3         || '');
@@ -772,24 +783,49 @@ function parsePrice(str) {
   return parseFloat((str || '').replace(',', '.')) || 0;
 }
 
-function calcPromo(plan) {
+// syncPlan: bidirecional — editar % calcula promo; editar promo calcula %; editar normal recalcula o que tiver
+function syncPlan(plan, source) {
   const ids = { '1m':  ['pPlan1mFull',  'pPlan1mOff',  'pPlan1m',  'disc1m'],
                 '3m':  ['pPlan3mFull',  'pPlan3mOff',  'pPlan3m',  'disc3m'],
                '12m':  ['pPlan12mFull', 'pPlan12mOff', 'pPlan12m', 'disc12m'] };
   const [fullId, offId, promoId, discId] = ids[plan];
-  const full = parsePrice(getVal(fullId));
-  const pct  = parseFloat(getVal(offId)) || 0;
-  const el   = document.getElementById(discId);
-  const promoInput = document.getElementById(promoId);
-  if (!el || !promoInput) return;
-  if (full > 0 && pct > 0 && pct < 100) {
-    const promo = full * (1 - pct / 100);
+  const full  = parsePrice(getVal(fullId));
+  const offEl   = document.getElementById(offId);
+  const promoEl = document.getElementById(promoId);
+  const discEl  = document.getElementById(discId);
+  if (!offEl || !promoEl || !discEl) return;
+
+  let pct = parseFloat(offEl.value) || 0;
+  let promo = parsePrice(promoEl.value);
+
+  if (source === 'off' || (source === 'full' && pct > 0)) {
+    // % editado → calcula promo
+    if (full > 0 && pct > 0 && pct < 100) {
+      promo = full * (1 - pct / 100);
+      promoEl.value = promo.toFixed(2).replace('.', ',');
+    } else if (pct === 0) {
+      promoEl.value = '';
+    }
+  } else if (source === 'promo' || (source === 'full' && promo > 0)) {
+    // promo editado → calcula %
+    if (full > 0 && promo > 0 && promo < full) {
+      pct = Math.round((1 - promo / full) * 100 * 10) / 10; // 1 decimal
+      offEl.value = pct;
+    } else if (promo >= full) {
+      offEl.value = '';
+      pct = 0;
+    }
+  }
+
+  // atualiza preview
+  if (full > 0 && pct > 0 && promo > 0 && promo < full) {
     const promoStr = promo.toFixed(2).replace('.', ',');
-    promoInput.value = promoStr;
-    el.textContent = `🏷️ De R$ ${getVal(fullId)} por R$ ${promoStr} (${Math.round(pct)}% off)`;
+    const fullStr  = full.toFixed(2).replace('.', ',');
+    discEl.textContent = `🏷️ De R$ ${fullStr} por R$ ${promoStr} (${Math.round(pct)}% off)`;
+  } else if (full > 0 && (!pct || !promo)) {
+    discEl.textContent = '(sem desconto)';
   } else {
-    promoInput.value = pct === 0 ? getVal(fullId) : '';
-    el.textContent = pct === 0 && full > 0 ? '(sem desconto)' : '';
+    discEl.textContent = '';
   }
 }
 
