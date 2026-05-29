@@ -360,150 +360,22 @@
       <div class="card">
         <div class="card-title"><div class="card-title-left"><span class="accent">💳</span> Configurações de PIX</div></div>
 
-        <div class="field">
-          <label>Gateway de pagamento</label>
-          <select id="pGateway" onchange="onGatewayChange()">
-            <option value="">— Selecione —</option>
-            <option value="asaas">Asaas</option>
-            <option value="efibank">EfiBank (Efí)</option>
-            <option value="mercadopago">Mercado Pago</option>
-            <option value="primepag">PrimePag</option>
-            <option value="syncpay">SyncPayments</option>
-            <option value="generic">Genérico (webhook padrão)</option>
-          </select>
-        </div>
-
-        <!-- Asaas -->
-        <div id="gw-asaas" class="gw-fields" style="display:none">
-          <div class="section-divider">Asaas</div>
-          <div class="form-row">
-            <div class="field full">
-              <label>API Key (começa com $aact_...)</label>
-              <input id="pAsaasKey" type="password" placeholder="$aact_YTU5YTE0M...">
-              <div class="field-hint">Painel Asaas → Minha conta → Integrações → Gerar token</div>
-            </div>
-            <div class="field full">
-              <label>Chave PIX (e-mail, CPF, telefone ou aleatória)</label>
-              <input id="pAsaasPixKey" type="text" placeholder="seu@email.com">
-            </div>
-            <div class="field full">
-              <label>URL do webhook (cole no painel Asaas)</label>
-              <input id="pAsaasWebhook" type="text" readonly style="color:var(--accent2);cursor:text">
-            </div>
-          </div>
-        </div>
-
-        <!-- EfiBank -->
-        <div id="gw-efibank" class="gw-fields" style="display:none">
-          <div class="section-divider">EfiBank (Efí)</div>
-          <div class="form-row">
-            <div class="field">
-              <label>Client ID</label>
-              <input id="pEfiClientId" type="text" placeholder="Client_Id_xxx">
-            </div>
-            <div class="field">
-              <label>Client Secret</label>
-              <input id="pEfiClientSecret" type="password" placeholder="Client_Secret_xxx">
-            </div>
-            <div class="field full">
-              <label>URL do webhook (cole no painel EfiBank)</label>
-              <input id="pEfiWebhook" type="text" readonly style="color:var(--accent2);cursor:text">
-              <div class="field-hint">⚠️ O QR Code PIX é gerado com a chave da própria EfiBank — não é necessário informar sua chave PIX aqui.</div>
-            </div>
-          </div>
-        </div>
-
         <!-- SyncPayments -->
-        <div id="gw-syncpay" class="gw-fields" style="display:none">
-          <div class="section-divider">SyncPayments</div>
-          <div class="form-row">
-            <div class="field">
-              <label>Client ID</label>
-              <input id="pSyncpayClientId" type="text" placeholder="89210cff-1a37-4cd0-825d-45fecd8e77bb">
-              <div class="field-hint">Painel SyncPayments → Developer API → Client ID</div>
-            </div>
-            <div class="field">
-              <label>Client Secret</label>
-              <input id="pSyncpayClientSecret" type="password" placeholder="dadc1b2c-86ee-4256-845a-d1511de315bb">
-              <div class="field-hint">Painel SyncPayments → Developer API → Client Secret</div>
-            </div>
-            <div class="field full">
-              <label>URL do webhook (registre no painel SyncPayments)</label>
-              <input id="pSyncpayWebhook" type="text" readonly style="color:var(--accent2);cursor:text">
-              <div class="field-hint">⚠️ O QR Code PIX é gerado pelo SyncPayments — não é necessário informar sua chave PIX. Registre esta URL como webhook de evento <strong>cashin</strong> no painel Developer API deles.</div>
-            </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Client ID</label>
+            <input id="pSyncpayClientId" type="text" placeholder="89210cff-1a37-4cd0-825d-45fecd8e77bb">
+            <div class="field-hint">Painel SyncPayments → Developer API → Client ID</div>
           </div>
-        </div>
-
-        <!-- Mercado Pago -->
-        <div id="gw-mercadopago" class="gw-fields" style="display:none">
-          <div class="section-divider">Mercado Pago</div>
-          <div class="form-row">
-            <div class="field full">
-              <label>Access Token</label>
-              <input id="pMpToken" type="password" placeholder="APP_USR-...">
-              <div class="field-hint">Painel MP → Suas integrações → Credenciais de produção</div>
-            </div>
-            <div class="field full">
-              <label>Chave PIX (CPF/CNPJ vinculado à conta)</label>
-              <input id="pMpPixKey" type="text" placeholder="000.000.000-00">
-            </div>
-            <div class="field full">
-              <label>URL do webhook (cole no painel MP)</label>
-              <input id="pMpWebhook" type="text" readonly style="color:var(--accent2);cursor:text">
-            </div>
+          <div class="field">
+            <label>Client Secret</label>
+            <input id="pSyncpayClientSecret" type="password" placeholder="dadc1b2c-86ee-4256-845a-d1511de315bb">
+            <div class="field-hint">Painel SyncPayments → Developer API → Client Secret</div>
           </div>
-        </div>
-
-        <!-- PrimePag -->
-        <div id="gw-primepag" class="gw-fields" style="display:none">
-          <div class="section-divider">PrimePag</div>
-          <div class="form-row">
-            <div class="field">
-              <label>API Key</label>
-              <input id="pPrimepagKey" type="password" placeholder="pk_live_xxx">
-            </div>
-            <div class="field">
-              <label>API Secret</label>
-              <input id="pPrimepagSecret" type="password" placeholder="sk_live_xxx">
-            </div>
-            <div class="field full">
-              <label>Chave PIX</label>
-              <input id="pPrimepagPixKey" type="text" placeholder="seu@email.com">
-            </div>
-            <div class="field full">
-              <label>URL do webhook (cole no painel PrimePag)</label>
-              <input id="pPrimepagWebhook" type="text" readonly style="color:var(--accent2);cursor:text">
-            </div>
+          <div class="field full">
+            <label>URL do webhook <span style="font-weight:400;color:var(--text-dim)">(registre no painel SyncPayments como evento <strong>cashin</strong>)</span></label>
+            <input id="pSyncpayWebhook" type="text" readonly style="color:var(--accent2);cursor:text">
           </div>
-        </div>
-
-        <!-- Genérico -->
-        <div id="gw-generic" class="gw-fields" style="display:none">
-          <div class="section-divider">Webhook genérico</div>
-          <div class="form-row">
-            <div class="field full">
-              <label>Chave PIX (exibida ao lead na hora do pagamento)</label>
-              <input id="pGenericPixKey" type="text" placeholder="seu@email.com ou chave aleatória">
-            </div>
-            <div class="field full">
-              <label>URL do webhook</label>
-              <input id="pGenericWebhook" type="text" readonly style="color:var(--accent2);cursor:text">
-            </div>
-          </div>
-          <p style="font-size:12px;color:var(--text-dim);margin-top:4px;line-height:1.6">
-            No modo genérico o lead vê a chave PIX e paga manualmente. Quando seu sistema confirmar o pagamento, chame o webhook acima com <code style="background:var(--surface2);padding:1px 5px;border-radius:4px">{ "status": "approved", "paymentId": "ID_UNICO", "amount": 27.90 }</code>
-          </p>
-        </div>
-
-        <div style="margin-top:20px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px" id="envVarsHint" style="display:none">
-          <div style="font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">⚠️ Variáveis de ambiente do Netlify</div>
-          <p style="font-size:12px;color:var(--text-dim);line-height:1.7;margin-bottom:10px">
-            As credenciais abaixo são <strong style="color:var(--text)">salvas de forma segura</strong> no Supabase e <strong style="color:var(--text)">não ficam expostas no código</strong>.<br>
-            Mas para o webhook processar pagamentos, você também precisa definir as variáveis de ambiente no Netlify:
-          </p>
-          <div id="envVarsList" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);line-height:2"></div>
-          <p style="font-size:11px;color:var(--text-dim);margin-top:8px">Netlify → Site → Site configuration → Environment variables</p>
         </div>
 
         <button class="btn btn-save btn-sm" style="margin-top:16px" onclick="saveProfile()">💾 Salvar configurações de PIX</button>
@@ -762,20 +634,10 @@ function applyProfile(cfg) {
   if (cfg.avatar_url) previewAvatar(cfg.avatar_url);
   if (cfg.banner_url) previewBanner(cfg.banner_url);
   // PIX
-  setVal('pGateway', cfg.gateway || '');
-  setVal('pAsaasKey', cfg.asaas_key || '');
-  setVal('pAsaasPixKey', cfg.asaas_pix_key || '');
-  setVal('pEfiClientId', cfg.efi_client_id || '');
-  setVal('pEfiClientSecret', cfg.efi_client_secret || '');
   setVal('pSyncpayClientId', cfg.syncpay_client_id || '');
   setVal('pSyncpayClientSecret', cfg.syncpay_client_secret || '');
-  setVal('pMpToken', cfg.mp_token || '');
-  setVal('pMpPixKey', cfg.mp_pix_key || '');
-  setVal('pPrimepagKey', cfg.primepag_key || '');
-  setVal('pPrimepagSecret', cfg.primepag_secret || '');
-  setVal('pPrimepagPixKey', cfg.primepag_pix_key || '');
-  setVal('pGenericPixKey', cfg.generic_pix_key || '');
-  onGatewayChange();
+  // Webhook URL
+  if (SITE) setVal('pSyncpayWebhook', SITE + '/functions/v1/pix-webhook');
 }
 
 function parsePrice(str) {
@@ -856,37 +718,17 @@ async function saveProfile() {
     benefit_2:        getVal('pBenefit2'),
     benefit_3:        getVal('pBenefit3'),
     // PIX
-    gateway:              getVal('pGateway'),
-    asaas_key:            getVal('pAsaasKey'),
-    asaas_pix_key:        getVal('pAsaasPixKey'),
-    efi_client_id:            getVal('pEfiClientId'),
-    efi_client_secret:        getVal('pEfiClientSecret'),
-    syncpay_client_id:        getVal('pSyncpayClientId'),
-    syncpay_client_secret:    getVal('pSyncpayClientSecret'),
-    mp_token:             getVal('pMpToken'),
-    mp_pix_key:           getVal('pMpPixKey'),
-    primepag_key:         getVal('pPrimepagKey'),
-    primepag_secret:      getVal('pPrimepagSecret'),
-    primepag_pix_key:     getVal('pPrimepagPixKey'),
-    generic_pix_key:      getVal('pGenericPixKey'),
+    gateway:              'syncpay',
+    syncpay_client_id:    getVal('pSyncpayClientId'),
+    syncpay_client_secret:getVal('pSyncpayClientSecret'),
   };
 
   // Salva gateway config separadamente em gateway_config
   const gwPayload = {
-    gateway:              getVal('pGateway'),
-    asaas_key:            getVal('pAsaasKey'),
-    asaas_pix_key:        getVal('pAsaasPixKey'),
-    efi_client_id:        getVal('pEfiClientId'),
-    efi_client_secret:    getVal('pEfiClientSecret'),
+    gateway:              'syncpay',
     syncpay_client_id:    getVal('pSyncpayClientId'),
     syncpay_client_secret:getVal('pSyncpayClientSecret'),
-    mp_token:             getVal('pMpToken'),
-    mp_pix_key:           getVal('pMpPixKey'),
-    primepag_key:         getVal('pPrimepagKey'),
-    primepag_secret:      getVal('pPrimepagSecret'),
-    primepag_pix_key:     getVal('pPrimepagPixKey'),
-    generic_pix_key:      getVal('pGenericPixKey'),
-    site_url:             document.getElementById('siteLabel').textContent ? 'https://' + document.getElementById('siteLabel').textContent : '',
+    site_url:             SITE ? 'https://' + SITE : '',
   };
   await sb.from('site_config').upsert({ key: 'gateway_config', value: gwPayload }, { onConflict: 'key' });
 
@@ -1118,46 +960,7 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
 function getVal(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 
-// ── GATEWAY CHANGE ──
-function onGatewayChange() {
-  const gw = getVal('pGateway');
-  const webhookBase = SITE ? SITE + '/api/pix-webhook' : 'https://seusite.netlify.app/api/pix-webhook';
-
-  document.querySelectorAll('.gw-fields').forEach(el => el.style.display = 'none');
-
-  const envHint = document.getElementById('envVarsHint');
-  const envList = document.getElementById('envVarsList');
-
-  if (!gw) { if (envHint) envHint.style.display = 'none'; return; }
-
-  const el = document.getElementById('gw-' + gw);
-  if (el) el.style.display = '';
-
-  // Preenche URL do webhook no campo readonly
-  const whFields = {
-    asaas:       'pAsaasWebhook',
-    efibank:     'pEfiWebhook',
-    mercadopago: 'pMpWebhook',
-    primepag:    'pPrimepagWebhook',
-    syncpay:     'pSyncpayWebhook',
-    generic:     'pGenericWebhook',
-  };
-  const whField = whFields[gw];
-  if (whField) setVal(whField, webhookBase);
-
-  // Variáveis de ambiente necessárias
-  const envMap = {
-    asaas:       ['ASAAS_API_KEY', 'PIX_KEY', 'SITE_URL', 'SUPABASE_URL', 'SUPABASE_SERVICE_KEY', 'ADMIN_SECRET'],
-    efibank:     ['EFI_CLIENT_ID', 'EFI_CLIENT_SECRET', 'SITE_URL', 'SUPABASE_URL', 'SUPABASE_SERVICE_KEY', 'ADMIN_SECRET'],
-    mercadopago: ['MP_ACCESS_TOKEN', 'PIX_KEY', 'SITE_URL', 'SUPABASE_URL', 'SUPABASE_SERVICE_KEY', 'ADMIN_SECRET'],
-    primepag:    ['PRIMEPAG_API_KEY', 'PRIMEPAG_SECRET', 'PIX_KEY', 'SITE_URL', 'SUPABASE_URL', 'SUPABASE_SERVICE_KEY', 'ADMIN_SECRET'],
-    syncpay:     ['SYNCPAY_CLIENT_ID', 'SYNCPAY_CLIENT_SECRET', 'SITE_URL', 'SUPABASE_URL', 'SUPABASE_SERVICE_KEY', 'ADMIN_SECRET'],
-    generic:     ['PIX_KEY', 'SITE_URL', 'SUPABASE_URL', 'SUPABASE_SERVICE_KEY', 'ADMIN_SECRET'],
-  };
-
-  if (envHint && envList && envMap[gw]) {
-    envHint.style.display = '';
-    envList.innerHTML = envMap[gw].map(v => `<span style="display:inline-block;background:var(--surface);border:1px solid var(--border);padding:2px 8px;border-radius:5px;margin:2px 4px 2px 0">${v}</span>`).join('');
+// ── GATEWAY CHANGE (removido — somente SyncPayments) ──
   }
 }
 
