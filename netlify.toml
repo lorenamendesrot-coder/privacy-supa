@@ -1,7 +1,11 @@
 [build]
   publish = "."
+  functions = "netlify/functions"
 
-# Sem Netlify Functions — tudo roda no Supabase
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
 
 [[headers]]
   for = "/*"
