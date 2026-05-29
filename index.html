@@ -1781,43 +1781,43 @@ main.wrap{
   color: rgb(108,117,125);
 }
 /* ===========================
-   MODAL PRIVACY — HEADER FIX
+   MODAL PRIVACY — COMPACT FIT
+   Tudo visível sem scroll
 =========================== */
 
-/* Header engloba banner + área do avatar/nome abaixo do banner */
+/* ── HEADER: banner + faixa de perfil ── */
 .pm-header{
   position: relative !important;
-  height: 136px !important;       /* 80px banner + 56px para avatar/nome que vazam */
-  overflow: hidden !important;    /* corta tudo dentro */
-  background: #f0ebe5 !important; /* fundo bege para a área abaixo do banner */
+  height: 116px !important;
+  overflow: hidden !important;
+  background: #ede8e3 !important;
   flex-shrink: 0 !important;
 }
 
-/* Banner ocupa só os primeiros 80px do topo */
 .pm-banner{
   position: absolute !important;
-  top: 0 !important; left: 0 !important; right: 0 !important;
-  height: 80px !important;
+  top:0 !important; left:0 !important; right:0 !important;
+  height: 70px !important;
   width: 100% !important;
   object-fit: cover !important;
   z-index: 1 !important;
   display: block !important;
 }
 
-/* Botão fechar */
 .pm-close{
   position: absolute !important;
-  top: 10px !important; right: 10px !important;
+  top: 8px !important; right: 8px !important;
   z-index: 5 !important;
+  width: 30px !important; height: 30px !important;
 }
 
-/* Avatar: centrado na borda banner/fundo (top=80-36=44px) */
+/* Avatar: cruza a linha banner/faixa */
 .pm-avatar{
   position: absolute !important;
-  width: 72px !important;
-  height: 72px !important;
+  width: 62px !important;
+  height: 62px !important;
   left: 12px !important;
-  top: 44px !important;           /* centro do avatar na linha do banner */
+  top: 39px !important;
   border-radius: 50% !important;
   border: 2px solid #fff !important;
   object-fit: cover !important;
@@ -1825,12 +1825,12 @@ main.wrap{
   background: #ccc !important;
 }
 
-/* Nome + handle: ao lado do avatar, na área bege */
+/* Nome + handle na faixa bege ao lado do avatar */
 .pm-id{
   position: absolute !important;
-  left: calc(12px + 72px + 10px) !important;   /* avatar left+width+gap */
+  left: calc(12px + 62px + 10px) !important;
   right: 12px !important;
-  top: 86px !important;           /* abaixo do banner */
+  top: 74px !important;
   bottom: 4px !important;
   z-index: 3 !important;
   display: flex !important;
@@ -1840,9 +1840,9 @@ main.wrap{
 }
 
 .pm-name{
-  font-size: 14px !important;
+  font-size: 13px !important;
   font-weight: 600 !important;
-  line-height: 18px !important;
+  line-height: 17px !important;
   color: rgb(30,41,59) !important;
   margin: 0 !important;
   white-space: nowrap !important;
@@ -1851,8 +1851,8 @@ main.wrap{
 }
 
 .pm-handle{
-  font-size: 12px !important;
-  line-height: 16px !important;
+  font-size: 11px !important;
+  line-height: 15px !important;
   font-weight: 400 !important;
   color: rgb(108,117,125) !important;
   margin-top: 2px !important;
@@ -1861,103 +1861,125 @@ main.wrap{
   text-overflow: ellipsis !important;
 }
 
-/* Body: padding normal, header já tem sua própria altura */
-.pm-body{ padding: 16px 16px 18px !important; overflow:auto; -webkit-overflow-scrolling:touch; }
+/* ── BODY compacto ── */
+.pm-body{
+  padding: 12px 14px 12px !important;
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
 
-/* ✅ TÍTULO: Benefícios exclusivos
-   - 31px da borda esquerda do MODAL (16 + 15)
-   - 19px até o primeiro item */
+/* Benefícios exclusivos */
 .pm-h3{
-  margin: 0 0 9px !important;
-  padding-left: 15px !important;  /* 16 + 15 = 31px da borda do MODAL */
-  font-size:16px;
-  line-height:21.6px;
-  font-weight:600;
-  color:#000;
+  margin: 0 0 6px !important;
+  padding-left: 0 !important;
+  font-size: 13px !important;
+  line-height: 18px !important;
+  font-weight: 600 !important;
+  color: #000 !important;
 }
 
-/* lista */
 .pm-benefits{
-  list-style:none;
-  padding:0 !important;
-  margin:0 !important;
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-/* ✅ cada item:
-   - ícone 9px do texto
-   - ícone começa a 31px da borda do MODAL */
 .pm-benefits li{
-  display:flex;
-  align-items:center;
-  gap:8px !important;
-  padding-left:15px !important;    /* 31px do MODAL */
-  font-size:16px;
-  line-height:24px;
-  font-weight:400;
-  color:rgb(51,51,51);
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  padding-left: 0 !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+  color: rgb(51,51,51) !important;
 }
 
-/* ✅ 13px entre itens */
-.pm-benefits li + li{
-  margin-top:1px !important;
-}
+.pm-benefits li + li{ margin-top: 0px !important; }
 
-/* ✅ trocar ✓ por icon-check.svg laranja */
 .pm-check{
-  width:18px !important;
-  height:18px !important;
-  flex:0 0 18px !important;
-
-  /* some com o ✓ */
-  font-size:0 !important;
-  line-height:0 !important;
-
-  /* desenha o svg como máscara e pinta com o laranja */
+  width: 16px !important;
+  height: 16px !important;
+  flex: 0 0 16px !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
   background: var(--accent) !important;
   -webkit-mask: url("images/icon-check.svg") center/contain no-repeat !important;
   mask: url("images/icon-check.svg") center/contain no-repeat !important;
 }
 
-/* ✅ linha: 26px abaixo do último item */
+/* Divisor */
 .pm-divider-full{
-  margin-top:20px !important;
-  height:1px;
-  background: rgba(0,0,0,.10);
-  margin-left:-16px;
-  margin-right:-16px;
+  margin-top: 10px !important;
+  height: 1px !important;
+  background: rgba(0,0,0,.10) !important;
+  margin-left: -14px !important;
+  margin-right: -14px !important;
 }
 
-/* ✅ "Formas de pagamento" a 23px da linha */
+/* Formas de pagamento */
 .pm-title{
-  margin: 19px 0 0 !important;
-  font-size:20px;
-  line-height:22px;
-  font-weight:700;
-  color:rgb(48,49,51);
+  margin: 10px 0 0 !important;
+  font-size: 15px !important;
+  line-height: 20px !important;
+  font-weight: 700 !important;
+  color: rgb(48,49,51) !important;
 }
 
-/* ✅ "Valor" 16px abaixo de "Formas de pagamento" */
 .pm-label{
-  margin-top:7px !important;
-  font-size:14px;
-  line-height:18.9px;
-  font-weight:400;
-  color:rgb(168,171,178);
+  margin-top: 4px !important;
+  font-size: 12px !important;
+  line-height: 16px !important;
+  font-weight: 400 !important;
+  color: rgb(168,171,178) !important;
 }
 
-/* ✅ "R$ ..." 15px abaixo de "Valor" */
 .pm-amount{
-  margin-top:9px !important;
-  font-size:20px;
-  line-height:22px;
-  font-weight:700;
-  color:rgb(48,49,51);
+  margin-top: 2px !important;
+  font-size: 17px !important;
+  line-height: 22px !important;
+  font-weight: 700 !important;
+  color: rgb(48,49,51) !important;
 }
 
-/* ✅ caixinha pix 18px abaixo do R$ */
-.pm-pix{
-  margin-top:18px !important;
+/* QR code menor */
+#pixQrImg{
+  width: 160px !important;
+  height: 160px !important;
+  margin: 8px auto 8px !important;
 }
+
+/* Textarea pix copia e cola */
+#pixCodigo{
+  min-height: 44px !important;
+  font-size: 10px !important;
+  padding: 8px !important;
+  line-height: 1.4 !important;
+}
+
+/* Botão copiar */
+.pm-body button[onclick="pixCopiar()"]{
+  padding: 11px !important;
+  font-size: 14px !important;
+  margin-top: 8px !important;
+}
+
+/* Timer */
+#pixTimer{
+  margin-top: 8px !important;
+  font-size: 11px !important;
+}
+
+/* Status / loading */
+#pixStatus{
+  margin: 8px 0 2px !important;
+  font-size: 12px !important;
+}
+
+.pm-divider{ margin-top: 10px !important; }
+.pm-pix{ margin-top: 10px !important; }
+.pm-copy{ margin-top: 10px !important; height: 42px !important; font-size: 14px !important; }
+.pm-generate{ margin-top: 8px !important; height: 42px !important; font-size: 14px !important; }
 .pm-close{
   position:absolute;
   top:12px;

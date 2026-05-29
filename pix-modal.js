@@ -123,8 +123,8 @@
     var html = '';
 
     if (data.pix_code) {
-      var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(data.pix_code);
-      html += '<img id="pixQrImg" src="' + qrUrl + '" alt="QR Code PIX" style="display:block;margin:0 auto 16px;width:200px;height:200px;border-radius:12px;">';
+      var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=' + encodeURIComponent(data.pix_code);
+      html += '<img id="pixQrImg" src="' + qrUrl + '" alt="QR Code PIX" style="display:block;margin:8px auto;width:160px;height:160px;border-radius:12px;">';
       html += '<p style="font-size:11px;color:var(--text-dim,#888);text-align:center;margin:0 0 8px;text-transform:uppercase;letter-spacing:.05em">Pix Copia e Cola</p>';
       html += '<textarea id="pixCodigo" readonly style="width:100%;box-sizing:border-box;background:var(--surface2,#111);border:1px solid var(--border,#222);border-radius:8px;padding:10px;color:var(--accent2,#4fc3f7);font-size:11px;font-family:monospace;resize:none;min-height:56px;word-break:break-all;outline:none">' + escHtml(data.pix_code) + '</textarea>';
       html += '<button onclick="pixCopiar()" style="display:block;width:100%;margin-top:10px;padding:13px;background:var(--accent,#e91e8c);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">📋 Copiar código PIX</button>';
