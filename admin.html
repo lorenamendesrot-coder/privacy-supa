@@ -842,11 +842,11 @@ async function saveProfile() {
     generic_pix_key:      getVal('pGenericPixKey'),
     site_url:             document.getElementById('siteLabel').textContent ? 'https://' + document.getElementById('siteLabel').textContent : '',
   };
-  await sb.from('site_config').upsert({ key: 'gateway_config', value: gwPayload, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+  await sb.from('site_config').upsert({ key: 'gateway_config', value: gwPayload }, { onConflict: 'key' });
 
   try {
     const { error: dbError } = await sb.from('site_config')
-      .upsert({ key: 'profile', value: payload, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+      .upsert({ key: 'profile', value: payload }, { onConflict: 'key' });
     if (dbError) {
       showToast('Erro ao salvar: ' + dbError.message, 'err');
     } else {
