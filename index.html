@@ -2584,7 +2584,7 @@ var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
     if (c.name)       { setText('siteName', c.name); setText('postName', c.name); setText('payName', c.name); document.title = 'Privacy | ' + c.name; }
     if (c.handle)     { setText('siteHandle', c.handle); setText('postHandle', c.handle); setText('payHandle', c.handle); }
     if (c.bio)        { var b = document.getElementById('bioTxt'); if (b) b.textContent = c.bio; }
-    if (c.telegram)   { var t = document.getElementById('siteTelegram'); if (t) { var tgUrl = c.telegram; if (tgUrl && !/^https?:///i.test(tgUrl)) tgUrl = 'https://' + tgUrl; t.href = tgUrl; } }
+    if (c.telegram)   { var t = document.getElementById('siteTelegram'); if (t) t.href = c.telegram; }
     if (c.stats_fotos)      setText('statFotos', c.stats_fotos);
     if (c.stats_videos)     setText('statVideos', c.stats_videos);
     if (c.stats_exclusivos) setText('statExclusivos', c.stats_exclusivos);
