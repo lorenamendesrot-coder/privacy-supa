@@ -11,7 +11,7 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
 };
 
-const SYNCPAY_BASE = "https://app.syncpayments.com.br";
+const SYNCPAY_BASE = "https://api.syncpayments.com.br";
 
 let _tokenCache: { token: string | null; expiresAt: number } = { token: null, expiresAt: 0 };
 

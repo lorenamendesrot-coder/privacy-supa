@@ -1,5 +1,5 @@
 // netlify/functions/pix-cashin.js
-const SYNCPAY = "https://app.syncpayments.com.br";
+const SYNCPAY = "https://api.syncpayments.com.br";
 
 exports.handler = async (event) => {
   const headers = {

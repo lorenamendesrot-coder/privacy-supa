@@ -5,7 +5,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const SYNCPAY_BASE = "https://app.syncpayments.com.br";
+const SYNCPAY_BASE = "https://api.syncpayments.com.br";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Content-Type",

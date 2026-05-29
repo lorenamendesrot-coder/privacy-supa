@@ -3,7 +3,7 @@
 // POST /api/syncpay-cashin
 // Body: { amount, client_id, client_secret, site_url }
 
-const SYNCPAY_BASE = "https://app.syncpayments.com.br";
+const SYNCPAY_BASE = "https://api.syncpayments.com.br";
 
 async function getBearerToken(client_id, client_secret) {
   const res = await fetch(`${SYNCPAY_BASE}/api/partner/v1/auth-token`, {
