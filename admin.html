@@ -842,20 +842,28 @@ async function saveProfile() {
     benefit_1:        getVal('pBenefit1'),
     benefit_2:        getVal('pBenefit2'),
     benefit_3:        getVal('pBenefit3'),
-    // PIX
-    gateway:              'syncpay',
-    syncpay_client_id:    getVal('pSyncpayClientId'),
-    syncpay_client_secret:getVal('pSyncpayClientSecret'),
+    // PIX — não salva credenciais no perfil, ficam só em gateway_config
+    site_url: getVal('pSiteUrl').replace(/\/+$/, ''),
   };
 
   // Salva gateway config separadamente em gateway_config
   const rawSiteUrl = getVal('pSiteUrl').replace(/\/+$/, '');
   const fullSiteUrl = rawSiteUrl ? (rawSiteUrl.startsWith('http') ? rawSiteUrl : 'https://' + rawSiteUrl) : '';
   const gwPayload = {
-    gateway:              'syncpay',
-    syncpay_client_id:    getVal('pSyncpayClientId'),
-    syncpay_client_secret:getVal('pSyncpayClientSecret'),
-    site_url:             fullSiteUrl,
+    site_url:              fullSiteUrl,
+    gateway:               getVal('pGateway') || 'syncpay',
+    syncpay_client_id:     getVal('pSyncpayClientId'),
+    syncpay_client_secret: getVal('pSyncpayClientSecret'),
+    nexuspag_api_key:          getVal('pNexuspagApiKey'),
+    nexuspag_webhook_secret:   getVal('pNexuspagWebhookSecret'),
+    asaas_api_key:         getVal('pAsaasApiKey'),
+    asaas_sandbox:         getVal('pAsaasSandbox') === '1',
+    efibank_client_id:     getVal('pEfibankClientId'),
+    efibank_client_secret: getVal('pEfibankClientSecret'),
+    efibank_pix_key:       getVal('pEfibankPixKey'),
+    efibank_sandbox:       getVal('pEfibankSandbox') === '1',
+    primepag_client_id:    getVal('pPrimepagClientId'),
+    primepag_client_secret:getVal('pPrimepagClientSecret'),
   };
   const { error: gwError } = await sb.from('site_config').upsert({ key: 'gateway_config', value: gwPayload }, { onConflict: 'key' });
   if (gwError) { showToast('Erro ao salvar config PIX: ' + gwError.message, 'err'); return; }
