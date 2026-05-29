@@ -71,8 +71,18 @@
     _pixLoading = true;
 
     loadGwConfig().then(function (cfg) {
-      if (!cfg.syncpay_client_id || !cfg.syncpay_client_secret) {
-        setElText('pixStatus', '❌ SyncPayments não configurado no painel admin.');
+      var gw = cfg.gateway || 'syncpay';
+
+      // Valida campos obrigatórios por gateway
+      var missing = false;
+      if (gw === 'syncpay'  && (!cfg.syncpay_client_id || !cfg.syncpay_client_secret)) missing = true;
+      if (gw === 'nexuspag' && !cfg.nexuspag_api_key)                                   missing = true;
+      if (gw === 'asaas'    && !cfg.asaas_api_key)                                      missing = true;
+      if (gw === 'efibank'  && (!cfg.efibank_client_id || !cfg.efibank_client_secret))  missing = true;
+      if (gw === 'primepag' && (!cfg.primepag_client_id || !cfg.primepag_client_secret)) missing = true;
+
+      if (missing) {
+        setElText('pixStatus', '❌ Credenciais do gateway não configuradas no painel admin.');
         _pixLoading = false;
         return;
       }
