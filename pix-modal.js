@@ -58,39 +58,57 @@
     setElDisplay('generatePixBtn', 'none');
   }
 
-  // ── Gera PIX via Supabase Edge Function ─────────────────
+  // ── Gera PIX direto via SyncPay API (browser) ───────────
   function gerarPix() {
     if (!_selectedPrice) { setElText('pixStatus', '❌ Valor inválido.'); return; }
 
     loadGwConfig().then(function (cfg) {
-      console.log('[pix-modal] gateway_config carregado:', JSON.stringify(cfg));
-      if (!cfg.syncpay_client_id) {
+      if (!cfg.syncpay_client_id || !cfg.syncpay_client_secret) {
         setElText('pixStatus', '❌ SyncPayments não configurado no painel admin.');
-        console.error('[pix-modal] syncpay_client_id ausente no gateway_config');
         return;
       }
 
-      fetch(SUPABASE_URL + '/functions/v1/pix-cashin', {
+      var SYNCPAY = 'https://app.syncpayments.com.br';
+
+      // 1. Autentica
+      fetch(SYNCPAY + '/api/partner/v1/auth-token', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_ANON,
-          'Authorization': 'Bearer ' + SUPABASE_ANON,
-        },
-        body: JSON.stringify({ amount: _selectedPrice }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: cfg.syncpay_client_id, client_secret: cfg.syncpay_client_secret }),
       })
-        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
-        .then(function (res) {
-          if (!res.ok || !res.data.ok) {
-            var msg = (res.data && res.data.error) || 'Erro ao gerar PIX.';
-            setElText('pixStatus', '❌ ' + msg);
+        .then(function(r) { return r.json(); })
+        .then(function(auth) {
+          if (!auth.access_token) {
+            setElText('pixStatus', '❌ Erro de autenticação SyncPay.');
             setElDisplay('generatePixBtn', '');
             return;
           }
-          setElDisplay('pixStatus', 'none');
-          renderResult(res.data);
+          var webhookUrl = cfg.site_url ? cfg.site_url + '/api/pix-webhook' : null;
+          var payload = { amount: _selectedPrice, description: 'Acesso ao conteúdo' };
+          if (webhookUrl) payload.webhook_url = webhookUrl;
+
+          // 2. Gera cobrança
+          return fetch(SYNCPAY + '/api/partner/v1/cash-in', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization': 'Bearer ' + auth.access_token,
+            },
+            body: JSON.stringify(payload),
+          })
+            .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+            .then(function(res) {
+              if (!res.ok) {
+                setElText('pixStatus', '❌ ' + (res.data.message || 'Erro ao gerar PIX.'));
+                setElDisplay('generatePixBtn', '');
+                return;
+              }
+              setElDisplay('pixStatus', 'none');
+              renderResult(res.data);
+            });
         })
-        .catch(function () {
+        .catch(function() {
           setElText('pixStatus', '❌ Falha de conexão. Tente novamente.');
           setElDisplay('generatePixBtn', '');
         });
