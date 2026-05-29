@@ -1,29 +1,15 @@
 // netlify/functions/syncpay-cashin.js
-// ============================================================
 // Gera uma cobrança PIX via SyncPayments API
 // POST /api/syncpay-cashin
-// Body: { amount, name, cpf, email, phone }
-// ============================================================
+// Body: { amount, client_id, client_secret, site_url }
 
 const SYNCPAY_BASE = "https://app.syncpayments.com.br";
 
-// Cache simples em memória para o Bearer Token (válido 1h)
-let _tokenCache = { token: null, expiresAt: 0 };
-
-async function getBearerToken() {
-  const now = Date.now();
-  // Reutiliza token se ainda válido (com margem de 60s)
-  if (_tokenCache.token && now < _tokenCache.expiresAt - 60_000) {
-    return _tokenCache.token;
-  }
-
+async function getBearerToken(client_id, client_secret) {
   const res = await fetch(`${SYNCPAY_BASE}/api/partner/v1/auth-token`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      client_id: process.env.SYNCPAY_CLIENT_ID,
-      client_secret: process.env.SYNCPAY_CLIENT_SECRET,
-    }),
+    body: JSON.stringify({ client_id, client_secret }),
   });
 
   if (!res.ok) {
@@ -32,17 +18,19 @@ async function getBearerToken() {
   }
 
   const data = await res.json();
-  _tokenCache = {
-    token: data.access_token,
-    // expires_in é em segundos
-    expiresAt: now + (data.expires_in ?? 3600) * 1000,
-  };
-
-  return _tokenCache.token;
+  return data.access_token;
 }
 
 exports.handler = async (event) => {
-  const headers = { "Content-Type": "application/json" };
+  const headers = {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 200, headers, body: "" };
+  }
 
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, headers, body: JSON.stringify({ error: "Method Not Allowed" }) };
@@ -55,37 +43,23 @@ exports.handler = async (event) => {
     return { statusCode: 400, headers, body: JSON.stringify({ error: "JSON inválido" }) };
   }
 
-  const { amount, name, cpf, email, phone } = body;
+  const { amount, client_id, client_secret, site_url } = body;
 
-  if (!amount || !name || !cpf || !email || !phone) {
-    return {
-      statusCode: 422,
-      headers,
-      body: JSON.stringify({ error: "Campos obrigatórios: amount, name, cpf, email, phone" }),
-    };
+  if (!amount) {
+    return { statusCode: 422, headers, body: JSON.stringify({ error: "Campo obrigatório: amount" }) };
+  }
+  if (!client_id || !client_secret) {
+    return { statusCode: 422, headers, body: JSON.stringify({ error: "Credenciais SyncPayments não configuradas no painel admin." }) };
   }
 
-  // Remove formatação do CPF (111.222.333-44 → 11122233344)
-  const cpfClean = String(cpf).replace(/\D/g, "");
-  // Remove formatação do telefone
-  const phoneClean = String(phone).replace(/\D/g, "");
-
   try {
-    const token = await getBearerToken();
+    const token = await getBearerToken(client_id, client_secret);
 
-    const webhookUrl = process.env.SITE_URL
-      ? `${process.env.SITE_URL}/api/pix-webhook`
-      : null;
+    const webhookUrl = site_url ? `${site_url}/api/pix-webhook` : null;
 
     const payload = {
       amount: parseFloat(amount),
       description: "Acesso ao conteúdo",
-      client: {
-        name: String(name),
-        cpf: cpfClean,
-        email: String(email),
-        phone: phoneClean,
-      },
       ...(webhookUrl && { webhook_url: webhookUrl }),
     };
 
@@ -110,7 +84,6 @@ exports.handler = async (event) => {
       };
     }
 
-    // Retorna pix_code (copia e cola / QR Code) e identifier da transação
     return {
       statusCode: 200,
       headers,
