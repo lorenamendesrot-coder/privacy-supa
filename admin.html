@@ -360,26 +360,108 @@
       <div class="card">
         <div class="card-title"><div class="card-title-left"><span class="accent">💳</span> Configurações de PIX</div></div>
 
-        <!-- SyncPayments -->
+        <!-- Seletor de gateway -->
         <div class="form-row">
+          <div class="field full">
+            <label>Gateway de pagamento</label>
+            <select id="pGateway" onchange="onGatewayChange()" style="width:100%;padding:10px 12px;background:var(--surface2,#111);border:1px solid var(--border,#222);border-radius:8px;color:var(--text,#fff);font-size:14px;">
+              <option value="syncpay">SyncPayments</option>
+              <option value="nexuspag">NexusPag</option>
+              <option value="asaas">Asaas</option>
+              <option value="efibank">EfiBank</option>
+              <option value="primepag">PrimePag</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label>URL do seu site <span style="font-weight:400;color:var(--text-dim)">(ex: https://seusite.netlify.app)</span></label>
+            <input id="pSiteUrl" type="text" placeholder="https://seusite.netlify.app" oninput="onSiteUrlChange()">
+            <div class="field-hint">Usado para gerar a URL do webhook automaticamente</div>
+          </div>
+          <div class="field full">
+            <label>URL do webhook <span style="font-weight:400;color:var(--text-dim)">(copie e cole no painel do gateway)</span></label>
+            <input id="pWebhookUrl" type="text" readonly style="color:var(--accent2,#4fc3f7);cursor:text">
+          </div>
+        </div>
+
+        <!-- Campos: SyncPayments -->
+        <div id="gw-syncpay" class="gw-fields form-row">
           <div class="field">
             <label>Client ID</label>
-            <input id="pSyncpayClientId" type="text" placeholder="89210cff-1a37-4cd0-825d-45fecd8e77bb">
+            <input id="pSyncpayClientId" type="text" placeholder="89210cff-...">
             <div class="field-hint">Painel SyncPayments → Developer API → Client ID</div>
           </div>
           <div class="field">
             <label>Client Secret</label>
-            <input id="pSyncpayClientSecret" type="password" placeholder="dadc1b2c-86ee-4256-845a-d1511de315bb">
+            <input id="pSyncpayClientSecret" type="password" placeholder="dadc1b2c-...">
             <div class="field-hint">Painel SyncPayments → Developer API → Client Secret</div>
           </div>
+        </div>
+
+        <!-- Campos: NexusPag -->
+        <div id="gw-nexuspag" class="gw-fields form-row" style="display:none">
           <div class="field full">
-            <label>URL do seu site <span style="font-weight:400;color:var(--text-dim)">(ex: https://seusite.netlify.app)</span></label>
-            <input id="pSiteUrl" type="text" placeholder="https://seusite.netlify.app">
-            <div class="field-hint">Usado para gerar a URL do webhook automaticamente</div>
+            <label>API Key</label>
+            <input id="pNexuspagApiKey" type="password" placeholder="nxp_live_...">
+            <div class="field-hint">Painel NexusPag → Integrações → Credenciais API → copie a chave completa</div>
           </div>
           <div class="field full">
-            <label>URL do webhook <span style="font-weight:400;color:var(--text-dim)">(registre no painel SyncPayments como evento <strong>cashin</strong>)</span></label>
-            <input id="pSyncpayWebhook" type="text" readonly style="color:var(--accent2);cursor:text">
+            <label>Webhook Secret <span style="font-weight:400;color:var(--text-dim)">(opcional — para validar assinatura HMAC)</span></label>
+            <input id="pNexuspagWebhookSecret" type="password" placeholder="nxps_dad01e0d...">
+            <div class="field-hint">Painel NexusPag → Integrações → Webhooks → Rotacionar secret</div>
+          </div>
+        </div>
+
+        <!-- Campos: Asaas -->
+        <div id="gw-asaas" class="gw-fields form-row" style="display:none">
+          <div class="field full">
+            <label>API Key</label>
+            <input id="pAsaasApiKey" type="password" placeholder="$aact_...">
+            <div class="field-hint">Painel Asaas → Integrações → API Key</div>
+          </div>
+          <div class="field">
+            <label>Ambiente</label>
+            <select id="pAsaasSandbox" style="width:100%;padding:10px 12px;background:var(--surface2,#111);border:1px solid var(--border,#222);border-radius:8px;color:var(--text,#fff);font-size:14px;">
+              <option value="">Produção</option>
+              <option value="1">Sandbox (testes)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Campos: EfiBank -->
+        <div id="gw-efibank" class="gw-fields form-row" style="display:none">
+          <div class="field">
+            <label>Client ID</label>
+            <input id="pEfibankClientId" type="text" placeholder="Client_Id_...">
+            <div class="field-hint">Painel EfiBank → API → Credenciais</div>
+          </div>
+          <div class="field">
+            <label>Client Secret</label>
+            <input id="pEfibankClientSecret" type="password" placeholder="Client_Secret_...">
+          </div>
+          <div class="field">
+            <label>Chave PIX</label>
+            <input id="pEfibankPixKey" type="text" placeholder="sua@chave.pix">
+            <div class="field-hint">Chave PIX cadastrada na conta EfiBank</div>
+          </div>
+          <div class="field">
+            <label>Ambiente</label>
+            <select id="pEfibankSandbox" style="width:100%;padding:10px 12px;background:var(--surface2,#111);border:1px solid var(--border,#222);border-radius:8px;color:var(--text,#fff);font-size:14px;">
+              <option value="">Produção</option>
+              <option value="1">Homologação (testes)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Campos: PrimePag -->
+        <div id="gw-primepag" class="gw-fields form-row" style="display:none">
+          <div class="field">
+            <label>Client ID</label>
+            <input id="pPrimepagClientId" type="text" placeholder="Client ID">
+            <div class="field-hint">Painel PrimePag → API → Credenciais</div>
+          </div>
+          <div class="field">
+            <label>Client Secret</label>
+            <input id="pPrimepagClientSecret" type="password" placeholder="Client Secret">
           </div>
         </div>
 
@@ -603,7 +685,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const siteInput = document.getElementById('pSiteUrl');
   if (siteInput) siteInput.addEventListener('input', () => {
     const _site = getSite();
-    if (_site) { const _base = _site.startsWith('http') ? _site : 'https://' + _site; setVal('pSyncpayWebhook', _base + '/api/pix-webhook'); }
+    if (_site) { onSiteUrlChange(); }
   });
 });
 
@@ -658,10 +740,29 @@ function applyProfile(cfg) {
   if (cfg.banner_url) previewBanner(cfg.banner_url);
   // PIX
   setVal('pSiteUrl',          cfg.site_url          || '');
-  setVal('pSyncpayClientId', cfg.syncpay_client_id || '');
+  // Gateway
+  var gw = cfg.gateway || 'syncpay';
+  setVal('pGateway', gw);
+  onGatewayChange();
+  // SyncPay
+  setVal('pSyncpayClientId',     cfg.syncpay_client_id     || '');
   setVal('pSyncpayClientSecret', cfg.syncpay_client_secret || '');
+  // NexusPag
+  setVal('pNexuspagApiKey',         cfg.nexuspag_api_key          || '');
+  setVal('pNexuspagWebhookSecret',  cfg.nexuspag_webhook_secret   || '');
+  // Asaas
+  setVal('pAsaasApiKey',    cfg.asaas_api_key    || '');
+  setVal('pAsaasSandbox',   cfg.asaas_sandbox    ? '1' : '');
+  // EfiBank
+  setVal('pEfibankClientId',     cfg.efibank_client_id     || '');
+  setVal('pEfibankClientSecret', cfg.efibank_client_secret || '');
+  setVal('pEfibankPixKey',       cfg.efibank_pix_key       || '');
+  setVal('pEfibankSandbox',      cfg.efibank_sandbox       ? '1' : '');
+  // PrimePag
+  setVal('pPrimepagClientId',     cfg.primepag_client_id     || '');
+  setVal('pPrimepagClientSecret', cfg.primepag_client_secret || '');
   // Webhook URL
-  const _site = getSite(); if (_site) { const _base = _site.startsWith('http') ? _site : 'https://' + _site; setVal('pSyncpayWebhook', _base + '/api/pix-webhook'); }
+  const _site = getSite(); if (_site) { onSiteUrlChange(); }
 }
 
 function parsePrice(str) {
@@ -987,7 +1088,21 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
 function getVal(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 
-// ── GATEWAY CHANGE (removido — somente SyncPayments) ──
+// ── GATEWAY CHANGE ───────────────────────────────────────────
+function onGatewayChange() {
+  var gw = getVal('pGateway') || 'syncpay';
+  document.querySelectorAll('.gw-fields').forEach(function(el) { el.style.display = 'none'; });
+  var target = document.getElementById('gw-' + gw);
+  if (target) target.style.display = '';
+  onSiteUrlChange();
+}
+
+function onSiteUrlChange() {
+  var site = (getVal('pSiteUrl') || '').replace(/\/+$/, '');
+  if (!site) return;
+  var base = site.startsWith('http') ? site : 'https://' + site;
+  setVal('pWebhookUrl', base + '/api/pix-webhook');
+}
 
 let toastTimer;
 function showToast(msg, type = '') {
