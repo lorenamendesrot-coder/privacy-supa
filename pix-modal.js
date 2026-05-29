@@ -63,8 +63,10 @@
     if (!_selectedPrice) { setElText('pixStatus', '❌ Valor inválido.'); return; }
 
     loadGwConfig().then(function (cfg) {
+      console.log('[pix-modal] gateway_config carregado:', JSON.stringify(cfg));
       if (!cfg.syncpay_client_id) {
         setElText('pixStatus', '❌ SyncPayments não configurado no painel admin.');
+        console.error('[pix-modal] syncpay_client_id ausente no gateway_config');
         return;
       }
 

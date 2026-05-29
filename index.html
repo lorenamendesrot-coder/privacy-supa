@@ -2252,7 +2252,7 @@ main.wrap{
 }
 </style>
 <link rel="stylesheet" href="responsive.css">
-<script src="js/antiInspect.obf.js"></script></head>
+</head>
 <body>
 <div class="appbar" id="main-navbar">
   <div class="wrap" style="position:relative">
@@ -2540,14 +2540,7 @@ main.wrap{
 
 <!-- Anti-inspect: carrega apenas no desktop (não no mobile para evitar problemas no Safari iOS) -->
 <script>
-  (function() {
-    var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (!isMobile) {
-      var script = document.createElement('script');
-      script.src = 'assets/js/obfuscated/antiInspect.obf.js';
-      document.head.appendChild(script);
-    }
-  })();
+
 </script>
 <script src="js/app.obf.js"></script>
 <script src="js/lang.obf.js"></script>
