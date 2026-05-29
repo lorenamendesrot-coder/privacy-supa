@@ -534,6 +534,11 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 let MEDIAS = [];
 let _session = null;
 
+function getSite() {
+  const label = document.getElementById("siteLabel");
+  return label ? label.textContent.trim() : "";
+}
+
 // ── AUTH ──
 async function doLogin() {
   const email    = document.getElementById('emailInput').value.trim();
@@ -637,7 +642,7 @@ function applyProfile(cfg) {
   setVal('pSyncpayClientId', cfg.syncpay_client_id || '');
   setVal('pSyncpayClientSecret', cfg.syncpay_client_secret || '');
   // Webhook URL
-  if (SITE) setVal('pSyncpayWebhook', SITE + '/functions/v1/pix-webhook');
+  const _site = getSite(); if (_site) setVal('pSyncpayWebhook', 'https://' + _site + '/functions/v1/pix-webhook');
 }
 
 function parsePrice(str) {
@@ -728,7 +733,7 @@ async function saveProfile() {
     gateway:              'syncpay',
     syncpay_client_id:    getVal('pSyncpayClientId'),
     syncpay_client_secret:getVal('pSyncpayClientSecret'),
-    site_url:             SITE ? 'https://' + SITE : '',
+    site_url:             getSite() ? 'https://' + getSite() : '',
   };
   await sb.from('site_config').upsert({ key: 'gateway_config', value: gwPayload }, { onConflict: 'key' });
 
