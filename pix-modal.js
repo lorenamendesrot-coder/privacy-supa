@@ -51,6 +51,7 @@
     document.body.style.overflow = '';
     if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
     _pixLoading = false;
+    _gwConfig = null; // limpa cache para sempre buscar config atualizada
   }
 
   // ── Reset visual (NÃO toca em _pixLoading) ──────────────

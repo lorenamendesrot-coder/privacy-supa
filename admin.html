@@ -409,6 +409,14 @@
             <input id="pNexuspagWebhookSecret" type="password" placeholder="nxps_dad01e0d...">
             <div class="field-hint">Painel NexusPag → Integrações → Webhooks → Rotacionar secret</div>
           </div>
+          <div class="field full">
+            <label>Ambiente</label>
+            <select id="pNexuspagSandbox" style="width:100%;padding:10px 12px;background:var(--surface2,#111);border:1px solid var(--border,#222);border-radius:8px;color:var(--text,#fff);font-size:14px;">
+              <option value="0">Produção (live)</option>
+              <option value="1">Sandbox (testes)</option>
+            </select>
+            <div class="field-hint">Use Sandbox para testar sem cobrar de verdade</div>
+          </div>
         </div>
 
         <!-- Campos: Asaas -->
@@ -750,6 +758,7 @@ function applyProfile(cfg) {
   // NexusPag
   setVal('pNexuspagApiKey',         cfg.nexuspag_api_key          || '');
   setVal('pNexuspagWebhookSecret',  cfg.nexuspag_webhook_secret   || '');
+  setVal('pNexuspagSandbox',        cfg.nexuspag_sandbox ? '1' : '0');
   // Asaas
   setVal('pAsaasApiKey',    cfg.asaas_api_key    || '');
   setVal('pAsaasSandbox',   cfg.asaas_sandbox    ? '1' : '');
@@ -856,6 +865,7 @@ async function saveProfile() {
     syncpay_client_secret: getVal('pSyncpayClientSecret'),
     nexuspag_api_key:          getVal('pNexuspagApiKey'),
     nexuspag_webhook_secret:   getVal('pNexuspagWebhookSecret'),
+    nexuspag_sandbox:          getVal('pNexuspagSandbox') === '1',
     asaas_api_key:         getVal('pAsaasApiKey'),
     asaas_sandbox:         getVal('pAsaasSandbox') === '1',
     efibank_client_id:     getVal('pEfibankClientId'),
