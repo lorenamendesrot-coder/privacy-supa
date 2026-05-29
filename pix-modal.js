@@ -8,6 +8,7 @@
   var _gwConfig = null;
   var _selectedPrice = 0;
   var _timerInterval = null;
+  var _pixLoading = false; // guard contra chamadas duplicadas
 
   // ── Carrega gateway_config uma vez ──────────────────────
   function loadGwConfig() {
@@ -22,6 +23,9 @@
 
   // ── Abre modal e já dispara geração do PIX ──────────────
   window.openPayModal = function (planCode, priceStr) {
+    // Bloqueia double-click / double-tap / eventos duplicados
+    if (_pixLoading) return;
+
     var raw = (priceStr || '0').replace(/[^\d,\.]/g, '').replace(',', '.');
     _selectedPrice = parseFloat(raw) || 0;
 
@@ -46,9 +50,10 @@
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
     if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+    _pixLoading = false;
   }
 
-  // ── Reset visual ────────────────────────────────────────
+  // ── Reset visual (NÃO toca em _pixLoading) ──────────────
   function resetModal() {
     if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
     var result = document.getElementById('pixResult');
@@ -58,17 +63,20 @@
     setElDisplay('generatePixBtn', 'none');
   }
 
-  // ── Gera PIX direto via SyncPay API (browser) ───────────
+  // ── Gera PIX via Netlify Function ───────────────────────
   function gerarPix() {
+    if (_pixLoading) return;
     if (!_selectedPrice) { setElText('pixStatus', '❌ Valor inválido.'); return; }
+
+    _pixLoading = true;
 
     loadGwConfig().then(function (cfg) {
       if (!cfg.syncpay_client_id || !cfg.syncpay_client_secret) {
         setElText('pixStatus', '❌ SyncPayments não configurado no painel admin.');
+        _pixLoading = false;
         return;
       }
 
-      // Chama Netlify Function como proxy (evita CORS)
       fetch('/api/pix-cashin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -81,6 +89,7 @@
       })
         .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
         .then(function(res) {
+          _pixLoading = false;
           if (!res.ok || !res.data.ok) {
             setElText('pixStatus', '❌ ' + (res.data.error || 'Erro ao gerar PIX.'));
             setElDisplay('generatePixBtn', '');
@@ -90,6 +99,7 @@
           renderResult(res.data);
         })
         .catch(function() {
+          _pixLoading = false;
           setElText('pixStatus', '❌ Falha de conexão. Tente novamente.');
           setElDisplay('generatePixBtn', '');
         });
@@ -104,7 +114,6 @@
     var html = '';
 
     if (data.pix_code) {
-      // QR Code via API pública
       var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(data.pix_code);
       html += '<img id="pixQrImg" src="' + qrUrl + '" alt="QR Code PIX" style="display:block;margin:0 auto 16px;width:200px;height:200px;border-radius:12px;">';
       html += '<p style="font-size:11px;color:var(--text-dim,#888);text-align:center;margin:0 0 8px;text-transform:uppercase;letter-spacing:.05em">Pix Copia e Cola</p>';
@@ -163,6 +172,7 @@
     if (genBtn) {
       genBtn.textContent = '🔄 Tentar novamente';
       genBtn.addEventListener('click', function () {
+        _pixLoading = false; // permite nova tentativa explícita
         setElDisplay('generatePixBtn', 'none');
         resetModal();
         gerarPix();
@@ -180,7 +190,6 @@
     var body = document.querySelector('.pm-body');
     if (!body || document.getElementById('pixResult')) return;
 
-    // Remove elementos antigos que não serão mais usados
     ['pixKey','copyPix','qrcode','awaitingPrice'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.style.display = 'none';
