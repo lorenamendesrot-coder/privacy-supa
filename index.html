@@ -2347,7 +2347,7 @@ main.wrap{
 
   <!-- 1 mês (sozinho) -->
   <div class="plan-grid">
-    <div class="sub-btn" role="button" tabindex="0" data-plan-code="PLAN_1M" data-plan-name="Assinatura 1 mês" data-price="">
+    <div class="sub-btn" role="button" tabindex="0" data-plan-code="PLAN_1M" data-plan-name="Assinatura 1 mês" data-price="" onclick="openPayModal('PLAN_1M', this.dataset.price, '1 mês')" onkeydown="if(event.key==='Enter'||event.key===' ')openPayModal('PLAN_1M',this.dataset.price,'1 mês')">
       <span class="left">
         1 mês
         <span class="discount-badge" id="badge1M" style="display:none"></span>
@@ -2372,7 +2372,7 @@ main.wrap{
   </div>
 
   <div class="promos-body" id="promosBody">
-    <div class="sub-btn" role="button" tabindex="0" data-plan-code="PLAN_3M" data-plan-name="Assinatura 3 mês" data-price="">
+    <div class="sub-btn" role="button" tabindex="0" data-plan-code="PLAN_3M" data-plan-name="Assinatura 3 mês" data-price="" onclick="openPayModal('PLAN_3M', this.dataset.price, '3 meses')" onkeydown="if(event.key==='Enter'||event.key===' ')openPayModal('PLAN_3M',this.dataset.price,'3 meses')">
       <span class="left">
         3 meses
         <span class="discount-badge" id="badge3M" style="display:none"></span>
@@ -2383,7 +2383,7 @@ main.wrap{
       </span>
     </div>
 
-    <div class="sub-btn" role="button" tabindex="0" data-plan-code="PLAN_12M" data-plan-name="Assinatura 12 mês" data-price="">
+    <div class="sub-btn" role="button" tabindex="0" data-plan-code="PLAN_12M" data-plan-name="Assinatura 12 mês" data-price="" onclick="openPayModal('PLAN_12M', this.dataset.price, '12 meses')" onkeydown="if(event.key==='Enter'||event.key===' ')openPayModal('PLAN_12M',this.dataset.price,'12 meses')">
       <span class="left">
         12 meses
         <span class="discount-badge" id="badge12M" style="display:none"></span>
@@ -2559,6 +2559,7 @@ main.wrap{
 
 
 <script src="content-unlock.js"></script>
+<script src="pix-modal.js"></script>
 
 <script>
 // ── CONFIG SUPABASE ── cole a URL e a ANON KEY do seu projeto ──
