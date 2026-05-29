@@ -174,6 +174,51 @@ const GATEWAYS = {
   },
 };
 
+
+  // ── NexusPag ──────────────────────────────────────────────
+  // Autenticação: x-api-key no header (sem OAuth)
+  // Webhook: header X-Nexuspag-Signature (HMAC-SHA256)
+  // Evento de pagamento confirmado: payment.confirmed
+  nexuspag: {
+    label: "NexusPag",
+    requiredFields: ["nexuspag_api_key"],
+
+    async getToken(cfg) {
+      // NexusPag usa API Key direta — sem passo de OAuth
+      return cfg.nexuspag_api_key;
+    },
+
+    async cashin(cfg, amount, webhookUrl) {
+      const base = cfg.nexuspag_sandbox
+        ? "https://sandbox.api.nexuspag.com"
+        : "https://api.nexuspag.com";
+
+      const payload = {
+        amount: parseFloat(amount),
+        description: "Acesso ao conteúdo",
+      };
+      if (webhookUrl) payload.webhook_url = webhookUrl;
+
+      const res = await fetch(`${base}/v1/pix/cashin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": cfg.nexuspag_api_key,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || data.error || "Erro ao gerar cobrança NexusPag");
+
+      // Adapte os campos abaixo conforme a resposta real da API
+      return {
+        pix_code: data.pix_code || data.qr_code || data.payload,
+        identifier: data.id || data.transaction_id,
+      };
+    },
+  },
+
 // ════════════════════════════════════════════════════════════
 // PARSERS — interpreta o webhook recebido por gateway
 // ════════════════════════════════════════════════════════════
@@ -196,6 +241,18 @@ const PARSERS = {
     if (body.status !== "PAID") return null;
     return { paymentId: body.transactionId, status: "approved", amount: body.amount / 100, payerEmail: body.customer?.email, payerName: body.customer?.name };
   },
+  nexuspag(body) {
+    // NexusPag envia: { event: "payment.confirmed", data: { id, status, amount, payer: { name, email } } }
+    if (body.event !== "payment.confirmed") return null;
+    const d = body.data || {};
+    return {
+      paymentId: d.id || d.transaction_id,
+      status: "approved",
+      amount: d.amount,
+      payerEmail: d.payer?.email,
+      payerName: d.payer?.name,
+    };
+  },
   mercadopago(body) {
     if (body.action !== "payment.updated") return null;
     return { paymentId: String(body.data?.id), status: "approved" };
@@ -214,8 +271,30 @@ function detectGateway(body, headers) {
   if (body.event?.startsWith("PAYMENT_")) return "asaas";
   if (body.pix) return "efibank";
   if (body.transactionId && body.status === "PAID") return "primepag";
+  if (body.event === "payment.confirmed" && body.data?.id) return "nexuspag";
   if (body.data?.id && body.data?.status) return "syncpay";
   return "generic";
 }
+
+module.exports = { GATEWAYS, PARSERS, detectGateway };
+
+// ── NexusPag: validação HMAC do webhook ─────────────────────
+// No pix-webhook.js, adicione antes de processar o body:
+//
+//   const crypto = require("crypto");
+//   function verifyNexuspagSignature(rawBody, signature, secret) {
+//     const sig = request.headers["X-Nexuspag-Signature"];
+//     const [tsPart, v1Part] = sig.split(",");
+//     const ts = tsPart.slice(2);   // remove "t="
+//     const v1 = v1Part.slice(3);   // remove "v1="
+//     const msg = ts + "." + rawBody;
+//     const expected = require("crypto")
+//       .createHmac("sha256", secret)
+//       .update(msg)
+//       .digest("hex");
+//     return expected === v1;
+//   }
+//
+// O secret fica em: process.env.NEXUSPAG_WEBHOOK_SECRET
 
 module.exports = { GATEWAYS, PARSERS, detectGateway };
