@@ -751,7 +751,6 @@ function applyProfile(cfg) {
   // Gateway
   var gw = cfg.gateway || 'syncpay';
   setVal('pGateway', gw);
-  onGatewayChange();
   // SyncPay
   setVal('pSyncpayClientId',     cfg.syncpay_client_id     || '');
   setVal('pSyncpayClientSecret', cfg.syncpay_client_secret || '');
@@ -770,6 +769,10 @@ function applyProfile(cfg) {
   // PrimePag
   setVal('pPrimepagClientId',     cfg.primepag_client_id     || '');
   setVal('pPrimepagClientSecret', cfg.primepag_client_secret || '');
+  // Popula cache com todos os valores carregados ANTES de chamar onGatewayChange
+  _saveCurrentGwToCache();
+  // Agora aplica o gateway selecionado (esconde/mostra bloco correto)
+  onGatewayChange();
   // Webhook URL
   const _site = getSite(); if (_site) { onSiteUrlChange(); }
 }
@@ -1107,23 +1110,50 @@ function setVal(id, val) { const el = document.getElementById(id); if (el) el.va
 function getVal(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 
 // ── GATEWAY CHANGE ───────────────────────────────────────────
-function onGatewayChange() {
-  var gw = getVal('pGateway') || 'syncpay';
+// ── GATEWAY CHANGE ───────────────────────────────────────────
 
-  // Esconde todos e limpa campos dos gateways que NÃO estão selecionados
+// Cache em memória para preservar valores ao trocar de gateway
+var _gwCache = {};
+
+// Lê os campos do gateway atual e salva no cache
+function _saveCurrentGwToCache() {
   document.querySelectorAll('.gw-fields').forEach(function(el) {
-    el.style.display = 'none';
-    if (el.id !== 'gw-' + gw) {
-      el.querySelectorAll('input, select').forEach(function(input) {
-        if (input.type === 'checkbox') input.checked = false;
-        else if (input.tagName === 'SELECT') input.selectedIndex = 0;
-        else input.value = '';
-      });
+    el.querySelectorAll('input, select').forEach(function(input) {
+      if (input.id) {
+        _gwCache[input.id] = input.type === 'checkbox' ? input.checked : input.value;
+      }
+    });
+  });
+}
+
+// Restaura valores do cache para um bloco de gateway
+function _restoreGwFromCache(gwEl) {
+  gwEl.querySelectorAll('input, select').forEach(function(input) {
+    if (input.id && _gwCache[input.id] !== undefined) {
+      if (input.type === 'checkbox') input.checked = _gwCache[input.id];
+      else input.value = _gwCache[input.id];
     }
   });
+}
 
+function onGatewayChange() {
+  // Salva o que está nos campos ANTES de esconder
+  _saveCurrentGwToCache();
+
+  var gw = getVal('pGateway') || 'syncpay';
+
+  // Esconde todos os blocos
+  document.querySelectorAll('.gw-fields').forEach(function(el) {
+    el.style.display = 'none';
+  });
+
+  // Mostra o bloco do gateway selecionado e restaura do cache
   var target = document.getElementById('gw-' + gw);
-  if (target) target.style.display = '';
+  if (target) {
+    target.style.display = '';
+    _restoreGwFromCache(target);
+  }
+
   onSiteUrlChange();
 }
 
