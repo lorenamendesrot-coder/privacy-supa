@@ -68,15 +68,14 @@
         return;
       }
 
-      fetch('/api/syncpay-cashin', {
+      fetch(SUPABASE_URL + '/functions/v1/pix-cashin', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: _selectedPrice,
-          client_id: cfg.syncpay_client_id,
-          client_secret: cfg.syncpay_client_secret,
-          site_url: cfg.site_url || '',
-        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON,
+          'Authorization': 'Bearer ' + SUPABASE_ANON,
+        },
+        body: JSON.stringify({ amount: _selectedPrice }),
       })
         .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
         .then(function (res) {
