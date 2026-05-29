@@ -1585,26 +1585,36 @@ main.wrap{
 
 /* nome + @ ao lado do avatar */
 .pm-id{
-  margin-left: calc(9px + 96px + 9px);
-  margin-top: 12px; /* controla descida */
+  position: absolute;
+  left: calc(9px + 96px + 10px); /* avatar left + largura + gap */
+  right: 44px;                   /* respeita o botão fechar */
+  bottom: -38px;                 /* desce junto com avatar que vaza */
+  z-index: 3;
+  overflow: hidden;
 }
 
 .pm-name{
   font-family:"PoppinsLocal", system-ui, sans-serif;
   font-size:14px;
-  line-height:16px;
-  font-weight:400;               /* Poppins Regular */
+  line-height:18px;
+  font-weight:600;
   color: rgb(30,41,59);
   margin:0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pm-handle{
-  margin-top:1px;                /* seu 6px */
+  margin-top:2px;
   font-family:"PoppinsLocal", system-ui, sans-serif;
-  font-size:14px;
+  font-size:13px;
   line-height:16px;
   font-weight:400;
   color: rgb(108,117,125);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* body com padding pra “descer” depois do avatar sobreposto */
@@ -1772,7 +1782,6 @@ main.wrap{
 }
 /* ===========================
    MODAL PRIVACY — PIXEL PERFECT
-   (medidas do seu print)
 =========================== */
 
 /* header não corta avatar */
@@ -1781,11 +1790,33 @@ main.wrap{
 /* garante layers */
 .pm-banner{ position:relative; z-index:1; }
 .pm-avatar{ position:absolute; z-index:3; }
-.pm-id{ position:absolute; z-index:3; }
 .pm-close{ position:absolute; z-index:4; }
 
-/* ✅ BODY (corrigido) — title 14px abaixo do avatar */
-.pm-body{ padding: 69px 16px 18px; overflow:auto; -webkit-overflow-scrolling:touch; }
+/* pm-id: posicionado ao lado do avatar, não vaza */
+.pm-id{
+  position: absolute !important;
+  left: calc(9px + 96px + 10px) !important;
+  right: 44px !important;
+  bottom: -38px !important;
+  z-index: 3 !important;
+  overflow: hidden !important;
+}
+
+.pm-name{
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-weight: 600 !important;
+}
+
+.pm-handle{
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* body: espaço para o avatar que vaza (96px - 80px banner = 16px vaza + 38px do pm-id + padding) */
+.pm-body{ padding: 76px 16px 18px !important; overflow:auto; -webkit-overflow-scrolling:touch; }
 
 /* ✅ TÍTULO: Benefícios exclusivos
    - 31px da borda esquerda do MODAL (16 + 15)
