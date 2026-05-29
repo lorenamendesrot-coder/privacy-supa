@@ -172,12 +172,7 @@
     // Injeta #pixResult e #pixStatus no modal se não existirem
     injectModalStructure();
 
-    // Bind botões de plano
-    document.querySelectorAll('[data-plan-code]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        openPayModal(this.dataset.planCode, this.dataset.price);
-      });
-    });
+    // Bind botões de plano removido — onclick já definido inline no HTML
   });
 
   // ── Injeta estrutura no .pm-body ────────────────────────
