@@ -373,6 +373,11 @@
             <div class="field-hint">Painel SyncPayments → Developer API → Client Secret</div>
           </div>
           <div class="field full">
+            <label>URL do seu site <span style="font-weight:400;color:var(--text-dim)">(ex: https://seusite.netlify.app)</span></label>
+            <input id="pSiteUrl" type="text" placeholder="https://seusite.netlify.app">
+            <div class="field-hint">Usado para gerar a URL do webhook automaticamente</div>
+          </div>
+          <div class="field full">
             <label>URL do webhook <span style="font-weight:400;color:var(--text-dim)">(registre no painel SyncPayments como evento <strong>cashin</strong>)</span></label>
             <input id="pSyncpayWebhook" type="text" readonly style="color:var(--accent2);cursor:text">
           </div>
@@ -535,8 +540,12 @@ let MEDIAS = [];
 let _session = null;
 
 function getSite() {
-  const label = document.getElementById("siteLabel");
-  return label ? label.textContent.trim() : "";
+  const input = document.getElementById('pSiteUrl');
+  if (input && input.value.trim()) {
+    return input.value.trim().replace(/\/+$/, '').replace(/^https?:\/\//, '');
+  }
+  const label = document.getElementById('siteLabel');
+  return label ? label.textContent.trim() : '';
 }
 
 // ── AUTH ──
@@ -589,6 +598,15 @@ async function onLoginSuccess(session) {
 
 document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
+// Atualiza webhook ao digitar a URL do site
+document.addEventListener('DOMContentLoaded', () => {
+  const siteInput = document.getElementById('pSiteUrl');
+  if (siteInput) siteInput.addEventListener('input', () => {
+    const _site = getSite();
+    if (_site) { const _base = _site.startsWith('http') ? _site : 'https://' + _site; setVal('pSyncpayWebhook', _base + '/api/pix-webhook'); }
+  });
+});
+
 // ── TABS ──
 const ALL_TABS = ['perfil','single','bulk','list','preview','meuacesso'];
 function switchTab(name) {
@@ -639,10 +657,11 @@ function applyProfile(cfg) {
   if (cfg.avatar_url) previewAvatar(cfg.avatar_url);
   if (cfg.banner_url) previewBanner(cfg.banner_url);
   // PIX
+  setVal('pSiteUrl',          cfg.site_url          || '');
   setVal('pSyncpayClientId', cfg.syncpay_client_id || '');
   setVal('pSyncpayClientSecret', cfg.syncpay_client_secret || '');
   // Webhook URL
-  const _site = getSite(); if (_site) setVal('pSyncpayWebhook', 'https://' + _site + '/functions/v1/pix-webhook');
+  const _site = getSite(); if (_site) { const _base = _site.startsWith('http') ? _site : 'https://' + _site; setVal('pSyncpayWebhook', _base + '/api/pix-webhook'); }
 }
 
 function parsePrice(str) {
@@ -729,13 +748,16 @@ async function saveProfile() {
   };
 
   // Salva gateway config separadamente em gateway_config
+  const rawSiteUrl = getVal('pSiteUrl').replace(/\/+$/, '');
+  const fullSiteUrl = rawSiteUrl ? (rawSiteUrl.startsWith('http') ? rawSiteUrl : 'https://' + rawSiteUrl) : '';
   const gwPayload = {
     gateway:              'syncpay',
     syncpay_client_id:    getVal('pSyncpayClientId'),
     syncpay_client_secret:getVal('pSyncpayClientSecret'),
-    site_url:             getSite() ? 'https://' + getSite() : '',
+    site_url:             fullSiteUrl,
   };
-  await sb.from('site_config').upsert({ key: 'gateway_config', value: gwPayload }, { onConflict: 'key' });
+  const { error: gwError } = await sb.from('site_config').upsert({ key: 'gateway_config', value: gwPayload }, { onConflict: 'key' });
+  if (gwError) { showToast('Erro ao salvar config PIX: ' + gwError.message, 'err'); return; }
 
   try {
     const { error: dbError } = await sb.from('site_config')
