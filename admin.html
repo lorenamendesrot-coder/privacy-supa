@@ -279,11 +279,15 @@
             <div class="plan-card-title">🗓️ 1 Mês</div>
             <div class="field">
               <label>Preço normal (R$)</label>
-              <input id="pPlan1mFull" type="text" placeholder="55,90" oninput="calcDiscount('1m')">
+              <input id="pPlan1mFull" type="text" placeholder="55,90" oninput="calcPromo('1m')">
+            </div>
+            <div class="field">
+              <label>Desconto (%)</label>
+              <input id="pPlan1mOff" type="number" min="0" max="99" placeholder="50" oninput="calcPromo('1m')">
             </div>
             <div class="field" style="margin-bottom:0">
-              <label>Preço promocional (R$)</label>
-              <input id="pPlan1m" type="text" placeholder="27,90" oninput="calcDiscount('1m')">
+              <label>Preço promocional (R$) — calculado</label>
+              <input id="pPlan1m" type="text" placeholder="—" readonly style="opacity:.65;cursor:default">
             </div>
             <div id="disc1m" style="margin-top:8px;font-size:12px;font-weight:600;color:var(--success);min-height:18px"></div>
           </div>
@@ -292,28 +296,34 @@
             <div class="plan-card-title">📅 3 Meses</div>
             <div class="field">
               <label>Preço normal (R$)</label>
-              <input id="pPlan3mFull" type="text" placeholder="75,90" oninput="calcDiscount('3m')">
+              <input id="pPlan3mFull" type="text" placeholder="75,90" oninput="calcPromo('3m')">
+            </div>
+            <div class="field">
+              <label>Desconto (%)</label>
+              <input id="pPlan3mOff" type="number" min="0" max="99" placeholder="50" oninput="calcPromo('3m')">
             </div>
             <div class="field" style="margin-bottom:0">
-              <label>Preço promocional (R$)</label>
-              <input id="pPlan3m" type="text" placeholder="37,90" oninput="calcDiscount('3m')">
+              <label>Preço promocional (R$) — calculado</label>
+              <input id="pPlan3m" type="text" placeholder="—" readonly style="opacity:.65;cursor:default">
             </div>
             <div id="disc3m" style="margin-top:8px;font-size:12px;font-weight:600;color:var(--success);min-height:18px"></div>
-            <input type="hidden" id="pPlan3mOff">
           </div>
 
           <div class="plan-card">
             <div class="plan-card-title">📆 12 Meses</div>
             <div class="field">
               <label>Preço normal (R$)</label>
-              <input id="pPlan12mFull" type="text" placeholder="439,80" oninput="calcDiscount('12m')">
+              <input id="pPlan12mFull" type="text" placeholder="439,80" oninput="calcPromo('12m')">
+            </div>
+            <div class="field">
+              <label>Desconto (%)</label>
+              <input id="pPlan12mOff" type="number" min="0" max="99" placeholder="80" oninput="calcPromo('12m')">
             </div>
             <div class="field" style="margin-bottom:0">
-              <label>Preço promocional (R$)</label>
-              <input id="pPlan12m" type="text" placeholder="87,90" oninput="calcDiscount('12m')">
+              <label>Preço promocional (R$) — calculado</label>
+              <input id="pPlan12m" type="text" placeholder="—" readonly style="opacity:.65;cursor:default">
             </div>
             <div id="disc12m" style="margin-top:8px;font-size:12px;font-weight:600;color:var(--success);min-height:18px"></div>
-            <input type="hidden" id="pPlan12mOff">
           </div>
 
         </div>
@@ -727,16 +737,14 @@ function applyProfile(cfg) {
   setVal('pStatLikes',       cfg.stats_likes       || '');
   setVal('pStatPostagens',   cfg.stats_postagens   || '');
   setVal('pStatMidias',      cfg.stats_midias      || '');
-  setVal('pPlan1m',          cfg.plan_1m_price     || '');
   setVal('pPlan1mFull',      cfg.plan_1m_full      || '');
-  setVal('pPlan3m',          cfg.plan_3m_price     || '');
+  setVal('pPlan1mOff',       cfg.plan_1m_off       || '');
   setVal('pPlan3mFull',      cfg.plan_3m_full      || '');
   setVal('pPlan3mOff',       cfg.plan_3m_off       || '');
-  setVal('pPlan12m',         cfg.plan_12m_price    || '');
   setVal('pPlan12mFull',     cfg.plan_12m_full     || '');
   setVal('pPlan12mOff',      cfg.plan_12m_off      || '');
-  // recalcula badges de desconto
-  setTimeout(() => { calcDiscount('1m'); calcDiscount('3m'); calcDiscount('12m'); }, 50);
+  // recalcula preços promocionais a partir do full + %
+  setTimeout(() => { calcPromo('1m'); calcPromo('3m'); calcPromo('12m'); }, 50);
   setVal('pBenefit1',        cfg.benefit_1         || '');
   setVal('pBenefit2',        cfg.benefit_2         || '');
   setVal('pBenefit3',        cfg.benefit_3         || '');
@@ -764,23 +772,24 @@ function parsePrice(str) {
   return parseFloat((str || '').replace(',', '.')) || 0;
 }
 
-function calcDiscount(plan) {
-  const ids = { '1m': ['pPlan1mFull','pPlan1m','disc1m','pPlan1mOff'],
-                '3m': ['pPlan3mFull','pPlan3m','disc3m','pPlan3mOff'],
-               '12m': ['pPlan12mFull','pPlan12m','disc12m','pPlan12mOff'] };
-  const [fullId, promoId, discId, hiddenId] = ids[plan];
-  const full  = parsePrice(getVal(fullId));
-  const promo = parsePrice(getVal(promoId));
-  const el    = document.getElementById(discId);
-  const hidden = document.getElementById(hiddenId);
-  if (!el) return;
-  if (full > 0 && promo > 0 && promo < full) {
-    const pct = Math.round((1 - promo / full) * 100);
-    el.textContent = `🏷️ ${pct}% de desconto`;
-    if (hidden) hidden.value = pct;
+function calcPromo(plan) {
+  const ids = { '1m':  ['pPlan1mFull',  'pPlan1mOff',  'pPlan1m',  'disc1m'],
+                '3m':  ['pPlan3mFull',  'pPlan3mOff',  'pPlan3m',  'disc3m'],
+               '12m':  ['pPlan12mFull', 'pPlan12mOff', 'pPlan12m', 'disc12m'] };
+  const [fullId, offId, promoId, discId] = ids[plan];
+  const full = parsePrice(getVal(fullId));
+  const pct  = parseFloat(getVal(offId)) || 0;
+  const el   = document.getElementById(discId);
+  const promoInput = document.getElementById(promoId);
+  if (!el || !promoInput) return;
+  if (full > 0 && pct > 0 && pct < 100) {
+    const promo = full * (1 - pct / 100);
+    const promoStr = promo.toFixed(2).replace('.', ',');
+    promoInput.value = promoStr;
+    el.textContent = `🏷️ De R$ ${getVal(fullId)} por R$ ${promoStr} (${Math.round(pct)}% off)`;
   } else {
-    el.textContent = '';
-    if (hidden) hidden.value = '';
+    promoInput.value = pct === 0 ? getVal(fullId) : '';
+    el.textContent = pct === 0 && full > 0 ? '(sem desconto)' : '';
   }
 }
 
@@ -800,6 +809,7 @@ async function saveProfile() {
     stats_midias:     getVal('pStatMidias'),
     plan_1m_price:    getVal('pPlan1m'),
     plan_1m_full:     getVal('pPlan1mFull'),
+    plan_1m_off:      getVal('pPlan1mOff'),
     plan_3m_price:    getVal('pPlan3m'),
     plan_3m_full:     getVal('pPlan3mFull'),
     plan_3m_off:      getVal('pPlan3mOff'),

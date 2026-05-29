@@ -2592,36 +2592,40 @@ var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
     if (c.stats_fotos)  { setText('miniStatFotos', c.stats_fotos); }
     if (c.stats_videos) { setText('miniStatVideos', c.stats_videos); }
     if (c.stats_likes)  { setText('statLikes', c.stats_likes); setText('miniStatLikes', c.stats_likes); }
-    // ── HELPER: aplica preço promocional com cálculo de desconto automático ──
+    // ── HELPER: aplica preço com desconto reverso (full + % → calcula promo) ──
     function applyPlanPrice(planCode, priceId, priceOldId, badgeId, priceVal, fullVal, offVal) {
-      if (!priceVal) return;
-      var price = parseFloat(priceVal);
-      var p = 'R$ ' + priceVal;
+      var full = fullVal ? parseFloat(String(fullVal).replace(',', '.')) : 0;
+      var pct  = offVal  ? parseFloat(offVal) : 0;
+      var price;
+
+      // desconto reverso: se tiver full + %, calcula o preço promo
+      if (full > 0 && pct > 0 && pct < 100) {
+        price = full * (1 - pct / 100);
+      } else if (priceVal) {
+        price = parseFloat(String(priceVal).replace(',', '.'));
+      } else {
+        return; // sem dados, não exibe nada
+      }
+
+      if (!price || price <= 0) return;
+
+      var priceStr = price.toFixed(2).replace('.', ',');
+      var p = 'R$ ' + priceStr;
       setText(priceId, p);
       var btn = document.querySelector('[data-plan-code="' + planCode + '"]');
       if (btn) btn.dataset.price = p;
 
-      // Calcula desconto automaticamente se tiver preço cheio
-      var discountPct = 0;
-      if (fullVal) {
-        var full = parseFloat(fullVal);
-        if (full > price) {
-          discountPct = Math.round((1 - price / full) * 100);
-          // mostra preço riscado
-          var oldEl = document.getElementById(priceOldId);
-          if (oldEl) { oldEl.textContent = 'R$ ' + fullVal; oldEl.style.display = 'inline'; }
-        }
-      }
-      // usa offVal manual se não calculou automaticamente
-      if (!discountPct && offVal) discountPct = parseInt(offVal);
-
-      if (discountPct > 0) {
+      // mostra preço riscado se tiver desconto
+      if (full > 0 && pct > 0) {
+        var fullStr = full.toFixed(2).replace('.', ',');
+        var oldEl = document.getElementById(priceOldId);
+        if (oldEl) { oldEl.textContent = 'R$ ' + fullStr; oldEl.style.display = 'inline'; }
         var badgeEl = document.getElementById(badgeId);
-        if (badgeEl) { badgeEl.textContent = '-' + discountPct + '%'; badgeEl.style.display = 'inline-flex'; }
+        if (badgeEl) { badgeEl.textContent = '-' + Math.round(pct) + '%'; badgeEl.style.display = 'inline-flex'; }
       }
     }
 
-    applyPlanPrice('PLAN_1M',  'price1M',  'priceOld1M',  'badge1M',  c.plan_1m_price,  c.plan_1m_full,  null);
+    applyPlanPrice('PLAN_1M',  'price1M',  'priceOld1M',  'badge1M',  c.plan_1m_price,  c.plan_1m_full,  c.plan_1m_off);
     applyPlanPrice('PLAN_3M',  'price3M',  'priceOld3M',  'badge3M',  c.plan_3m_price,  c.plan_3m_full,  c.plan_3m_off);
     applyPlanPrice('PLAN_12M', 'price12M', 'priceOld12M', 'badge12M', c.plan_12m_price, c.plan_12m_full, c.plan_12m_off);
     var bens = document.querySelectorAll('.pm-benefits li span:last-child');
