@@ -68,45 +68,26 @@
         return;
       }
 
-      var SYNCPAY = 'https://app.syncpayments.com.br';
-
-      // 1. Autentica
-      fetch(SYNCPAY + '/api/partner/v1/auth-token', {
+      // Chama Netlify Function como proxy (evita CORS)
+      fetch('/api/pix-cashin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ client_id: cfg.syncpay_client_id, client_secret: cfg.syncpay_client_secret }),
+        body: JSON.stringify({
+          amount: _selectedPrice,
+          client_id: cfg.syncpay_client_id,
+          client_secret: cfg.syncpay_client_secret,
+          site_url: cfg.site_url || '',
+        }),
       })
-        .then(function(r) { return r.json(); })
-        .then(function(auth) {
-          if (!auth.access_token) {
-            setElText('pixStatus', '❌ Erro de autenticação SyncPay.');
+        .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+        .then(function(res) {
+          if (!res.ok || !res.data.ok) {
+            setElText('pixStatus', '❌ ' + (res.data.error || 'Erro ao gerar PIX.'));
             setElDisplay('generatePixBtn', '');
             return;
           }
-          var webhookUrl = cfg.site_url ? cfg.site_url + '/api/pix-webhook' : null;
-          var payload = { amount: _selectedPrice, description: 'Acesso ao conteúdo' };
-          if (webhookUrl) payload.webhook_url = webhookUrl;
-
-          // 2. Gera cobrança
-          return fetch(SYNCPAY + '/api/partner/v1/cash-in', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': 'Bearer ' + auth.access_token,
-            },
-            body: JSON.stringify(payload),
-          })
-            .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
-            .then(function(res) {
-              if (!res.ok) {
-                setElText('pixStatus', '❌ ' + (res.data.message || 'Erro ao gerar PIX.'));
-                setElDisplay('generatePixBtn', '');
-                return;
-              }
-              setElDisplay('pixStatus', 'none');
-              renderResult(res.data);
-            });
+          setElDisplay('pixStatus', 'none');
+          renderResult(res.data);
         })
         .catch(function() {
           setElText('pixStatus', '❌ Falha de conexão. Tente novamente.');
