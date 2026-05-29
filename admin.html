@@ -1109,7 +1109,19 @@ function getVal(id) { const el = document.getElementById(id); return el ? el.val
 // ── GATEWAY CHANGE ───────────────────────────────────────────
 function onGatewayChange() {
   var gw = getVal('pGateway') || 'syncpay';
-  document.querySelectorAll('.gw-fields').forEach(function(el) { el.style.display = 'none'; });
+
+  // Esconde todos e limpa campos dos gateways que NÃO estão selecionados
+  document.querySelectorAll('.gw-fields').forEach(function(el) {
+    el.style.display = 'none';
+    if (el.id !== 'gw-' + gw) {
+      el.querySelectorAll('input, select').forEach(function(input) {
+        if (input.type === 'checkbox') input.checked = false;
+        else if (input.tagName === 'SELECT') input.selectedIndex = 0;
+        else input.value = '';
+      });
+    }
+  });
+
   var target = document.getElementById('gw-' + gw);
   if (target) target.style.display = '';
   onSiteUrlChange();
